@@ -1,52 +1,14 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
 import './App.css'
-
-const TURNS = {
-  X: "x",
-  O: "o"
-}
-
-const WINNER_COMBINATIONS = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6]
-]
-
-const Square = ({ children, isSelected, updatedBoard, index }) => {
-  const className = `square ${isSelected ? 'is-selected' : ''}`
-  const handleClick = () => {
-    updatedBoard(index)
-  }
-
-  return (
-    <div className={className} onClick={handleClick}>
-        {children}
-    </div>
-  )
-}
+import confetti from 'canvas-confetti'
+import { Square } from './components/Square'
+import { TURNS } from './constants'
+import { Winner } from './components/Winner'
 
 function App() {
   const [board, setBoard] = useState(Array(9).fill(null))
   const [turn, setTurn] = useState(TURNS.X)
   const [winner, setWinner] = useState(null)
-
-  const checkWinner = (boardToCheck) => {
-    for(const combination of WINNER_COMBINATIONS) {
-      const [a, b, c] = combination
-      if (boardToCheck[a] && 
-        boardToCheck[a] === boardToCheck[b] && 
-        boardToCheck[a] === boardToCheck[c]) {
-        return boardToCheck[a]
-      }
-    }
-    return null
-  }
 
   const resetGame = () => {
     setBoard(Array(9).fill(null))
@@ -66,6 +28,7 @@ function App() {
     setTurn(turn === TURNS.X ? TURNS.O : TURNS.X)
     const newWinner = checkWinner(newBoard)
     if (newWinner) {
+      confetti()
       setWinner(newWinner)
     } else if (checkEndGame(newBoard)) {
       setWinner(false)
@@ -95,33 +58,7 @@ function App() {
           {TURNS.O}
         </Square>
       </section>
-      {
-        winner !== null && (
-          <section className='winner'>
-            <div className='text'>
-              <h2>
-                {
-                  winner === false 
-                    ? 'Draw'
-                    : `Winner is:`
-                }
-              </h2>
-
-              <header>
-                {
-                  winner && <Square>{winner}</Square> 
-                }
-              </header>
-
-              <footer>
-                <button onClick={resetGame}>
-                  Restart
-                </button>
-              </footer>
-            </div>
-          </section>
-        )
-      }
+      <Winner winner={winner} resetGame={resetGame} />
     </main>
   )
 }
