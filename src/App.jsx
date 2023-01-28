@@ -4,20 +4,32 @@ import confetti from 'canvas-confetti'
 import { Square } from './components/Square'
 import { TURNS } from './constants'
 import { Winner } from './components/Winner'
+import { checkEndGame, checkWinner } from './logic/board'
+import { saveGame, resetGameFromStorage } from './logic/storage'
 
 function App() {
-  const [board, setBoard] = useState(Array(9).fill(null))
-  const [turn, setTurn] = useState(TURNS.X)
+  const [board, setBoard] = useState(() => {
+    const boardFromStorage = window.localStorage.getItem('board')
+    return boardFromStorage 
+      ? JSON.parse(boardFromStorage)
+      : Array(9).fill(null)
+  })
+
+  const [turn, setTurn] = useState( () => {
+    const turnFromStorage = window.localStorage.getItem('turn')
+    return turnFromStorage
+      ? turnFromStorage
+      : TURNS.X
+  })
+
   const [winner, setWinner] = useState(null)
 
   const resetGame = () => {
     setBoard(Array(9).fill(null))
     setTurn(TURNS.X)
     setWinner(null)
-  }
-
-  const checkEndGame = (boardToCheck) => {
-    return boardToCheck.every((square) => square !== null)
+    // borrar partida
+    resetGameFromStorage()
   }
 
   const updatedBoard = (index) => {
@@ -25,7 +37,12 @@ function App() {
     const newBoard = [...board]
     newBoard[index] = turn
     setBoard(newBoard)
-    setTurn(turn === TURNS.X ? TURNS.O : TURNS.X)
+
+    const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
+    setTurn(newTurn)
+    // guardar partida
+    saveGame({ board: newBoard, turn: newTurn})
+
     const newWinner = checkWinner(newBoard)
     if (newWinner) {
       confetti()

@@ -1,3 +1,5 @@
+import { Square } from "./Square"
+
 export function Winner({ winner, resetGame }) {
     if (winner === null) return null
 
@@ -9,7 +11,7 @@ export function Winner({ winner, resetGame }) {
           <h2>{winnerText}</h2>
           <header>
             {
-              winner && <Square>{winner}</Square> 
+              winner && <Square >{winner}</Square> 
             }
           </header>
           <footer>
